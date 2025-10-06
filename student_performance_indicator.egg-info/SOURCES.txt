@@ -1,5 +1,7 @@
 README.md
 setup.py
+notebooks/EDA_utils.py
+notebooks/__init__.py
 src/__init__.py
 src/exception.py
 src/logger.py
