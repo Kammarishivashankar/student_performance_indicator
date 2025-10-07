@@ -1,0 +1,58 @@
+import os
+import sys
+from src.exception import CustomerException
+from src.logger import logging
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from dataclasses import dataclass
+debug=False
+
+@dataclass
+class DataIngestionConfig:
+    raw_data_path: str=os.path.join('Data',"Raw_data.csv")
+    train_data_path: str=os.path.join('Data','train.csv')
+    test_data_path: str=os.path.join("Data",'test.csv')
+
+class DataIngestion:
+    def __init__(self):
+        self.ingestion_config = DataIngestionConfig()
+
+    def start_data_ingestion(self):
+
+        logging.info('DataIngestion.start__data_ingestion started...!')
+        try:
+            df = pd.read_csv('EDA\\StudentsPerformance.csv')
+            logging.info('Read the dataset in DataIngestion.start__data_ingestion..')
+
+            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
+
+            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=False)
+            logging.info('raw data saved to csv in DataIngestion.start__data_ingestion..')
+
+            logging.info('Train test split started in DataIngestion.start__data_ingestion....')
+            train_set, test_set = train_test_split(df,test_size=0.25,random_state=0)
+
+            train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=False)
+            test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=False)
+            logging.info('training and testing data saved to csv in DataIngestion.start__data_ingestion..')
+
+            logging.info('Ingestion of data is completed!')
+
+            return (
+                self.ingestion_config.train_data_path,
+                self.ingestion_config.test_data_path
+            )
+
+        except Exception as e:
+            raise CustomerException(e,sys)
+        
+if debug:
+    if __name__ == "__main__":
+        obj = DataIngestion()
+        obj.start_data_ingestion()
+
+
+
+ 
+
