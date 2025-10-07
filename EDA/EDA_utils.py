@@ -5,6 +5,9 @@ import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.base import BaseEstimator, TransformerMixin
+import re
+
 class EDA:
     def __init__(self,df):
         self.df = df
@@ -101,6 +104,46 @@ class EDA:
             print(f"Number of outliers: {len(outliers)}\n")
         
         
+
+class DegreeTransformation(BaseEstimator,TransformerMixin):
+    def __init__(self,column):
+        self.column = column
+        self.degree_map = {
+            'some high school': 'high_school',
+            'high school': 'high_school',
+            'secondary school': 'high_school',
+            'ssc': 'high_school',
+            'hsc': 'high_school',
+            '10th': 'high_school',
+            '12th': 'high_school',
+            'some college' : 'high_school',
+            "associate's degree" : "associate", }
+        
+    def normalize_degree(self, val):
+        val_lower = str(val).lower()
+        if re.search(r'master|m\.sc|mtech|m\.tech|msc|ms|post\-graduate', val_lower):
+            return 'masters'
+        if re.search(r'bachelor|b\.sc|btech|b\.tech|bsc|bs', val_lower):
+            return 'bachelors'
+        if re.search(r'phd|ph\.d|doctorate', val_lower):
+            return 'phd'
+        if val_lower in self.degree_map:
+            return self.degree_map[val_lower]
+        return val
+    def fit(self,X,y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+        X_new[self.column] = X_new[self.column].apply(self.normalize_degree)
+        return X_new
+    
+    def get_feature_names_out(self, input_features=None):
+        if input_features is None:
+            input_features = [self.column]
+        return [f"normalized_{col}" for col in input_features]
+        
+
 
 
 
