@@ -6,12 +6,13 @@ import os
 from dataclasses import dataclass
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder
-from sklearn.preprocessing import SimpleImputer
+from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 from src.exception import CustomerException
 from src.logger import logging
+from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
@@ -20,16 +21,16 @@ class DataTransformationConfig:
 
 class DataTransformation:
     def __init__(self):
-        self.data__transformation_config=DataTransformationConfig()
+        self.data_transformation_config = DataTransformationConfig()
 
     def get_data_transformer(self):
         try:
             numerical_columns = ['writing score',"reading score"]
             categorical_columns = ['gender',
-                                   'race/ethnicity',
-                                   'parental level of education',
-                                   'lunch',
-                                   'test preparation course']
+                                'race/ethnicity',
+                                'parental level of education',
+                                'lunch',
+                                'test preparation course']
             
             numerical_pipeline = Pipeline(
                 steps = [
@@ -40,9 +41,8 @@ class DataTransformation:
 
             categorical_pipeline = Pipeline(
                 steps=[
-                    ('Imputer',SimpleImputer(strategy='most_frequenct')),
-                    ("One_hot_encoder",OneHotEncoder())
-                    ("scaler",StandardScaler())
+                    ('imputer',SimpleImputer(strategy='most_frequent')),
+                    ("one_hot_encoder",OneHotEncoder(sparse_output=False))
                 ]
             )
 
@@ -70,14 +70,35 @@ class DataTransformation:
             logging.info('Data read for training and testing is done!')
 
             prepprocessor_obj = self.get_data_transformer()
+            prepprocessor_obj.set_output(transform='pandas')
 
             target = "math score"
+
+        
+            input_train_data = train_df.drop(columns=[target])
+            target_train_data = train_df[target]
+
+            input_test_data = test_df.drop(columns=[target])
+            target_test_data = test_df[target]
+
+            logging.info(f"training and testing test preparation done...")
+
+            input_train_data_transfomed = prepprocessor_obj.fit_transform(input_train_data)
+            input_test_data_transformed = prepprocessor_obj.transform(input_test_data)
+
             
 
+            save_object(
+                self.data_transformation_config.preprocessor_obj_file_path,
+                obj=prepprocessor_obj
+            )
+
+            return (
+                input_train_data_transfomed,
+                input_test_data_transformed,
+                target_train_data,
+                target_test_data
+            )
         except Exception as e:
             logging.info(' failed!....')
             raise CustomerException(e,sys)
-
-        
-
-

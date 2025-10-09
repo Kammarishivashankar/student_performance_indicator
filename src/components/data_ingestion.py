@@ -6,7 +6,9 @@ from src.logger import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-debug=False
+from src.components.data_transformation import DataTransformation
+
+debug=True
 
 @dataclass
 class DataIngestionConfig:
@@ -20,22 +22,22 @@ class DataIngestion:
 
     def start_data_ingestion(self):
 
-        logging.info('DataIngestion.start__data_ingestion started...!')
+        logging.info('DataIngestion.start_data_ingestion started...!')
         try:
-            df = pd.read_csv('EDA\\StudentsPerformance.csv')
-            logging.info('Read the dataset in DataIngestion.start__data_ingestion..')
+            df = pd.read_csv(os.path.join('EDA','StudentsPerformance.csv'))
+            logging.info('Read the dataset in DataIngestion.start_data_ingestion..')
 
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
 
-            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=False)
-            logging.info('raw data saved to csv in DataIngestion.start__data_ingestion..')
+            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
+            logging.info('raw data saved to csv in DataIngestion.start_data_ingestion..')
 
-            logging.info('Train test split started in DataIngestion.start__data_ingestion....')
+            logging.info('Train test split started in DataIngestion.start_data_ingestion....')
             train_set, test_set = train_test_split(df,test_size=0.25,random_state=0)
 
             train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=True)
             test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=True)
-            logging.info('training and testing data saved to csv in DataIngestion.start__data_ingestion..')
+            logging.info('training and testing data saved to csv in DataIngestion.start_data_ingestion..')
 
             logging.info('Ingestion of data is completed!')
 
@@ -50,7 +52,10 @@ class DataIngestion:
 if debug:
     if __name__ == "__main__":
         obj = DataIngestion()
-        obj.start_data_ingestion()
+        train_data,test_data  = obj.start_data_ingestion()
+
+        data_trf_obj = DataTransformation()
+        data_trf_obj.start_data_transformation(train_data,test_data)
 
 
 
