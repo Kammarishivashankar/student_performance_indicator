@@ -1,1 +1,2 @@
-## Machine learning project on student performance indicator
+## Machine learning project on student performance prediction
+
