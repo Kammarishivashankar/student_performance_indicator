@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 from src.components.data_transformation import DataTransformation
-from src.components.model_trainer import ModelTrainer
 
 debug=True
 
@@ -56,11 +55,8 @@ if debug:
         train_data,test_data  = obj.start_data_ingestion()
 
         data_trf_obj = DataTransformation()
-        x_train,y_train,x_test,y_test = data_trf_obj.start_data_transformation(train_data,test_data)
-        print(x_train.columns,y_train.name)
-
-        model_trainer_obj = ModelTrainer()
-        model_trainer_obj.start_model_trainer(x_train,y_train,x_test,y_test)
+        train_set,test_set = data_trf_obj.start_data_transformation(train_data,test_data)
+        print(train_set.columns)
 
 
 

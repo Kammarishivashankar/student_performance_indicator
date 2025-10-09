@@ -52,7 +52,8 @@ class DataTransformation:
                     ("num_pipeline",numerical_pipeline,numerical_columns),
                     ("cat_pipeline",categorical_pipeline,categorical_columns)
                 ],
-                remainder='passthrough'
+                remainder='passthrough',
+                verbose_feature_names_out=False
             )
 
             logging.info('Data transformation completed!....')
@@ -92,13 +93,14 @@ class DataTransformation:
                 self.data_transformation_config.preprocessor_obj_file_path,
                 obj=prepprocessor_obj
             )
+            logging.info(f"saving preprocessor completed...")
 
             return (
                 input_train_data_transfomed,
-                input_test_data_transformed,
                 target_train_data,
+                input_test_data_transformed,
                 target_test_data
             )
         except Exception as e:
-            logging.info(' failed!....')
+            logging.info('start_data_transformation failed!....')
             raise CustomerException(e,sys)
