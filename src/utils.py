@@ -7,6 +7,7 @@ import dill
 from src.exception import CustomerException
 from src.logger import logging
 from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
 
 
 
@@ -22,7 +23,7 @@ def save_object(file_path,obj):
         raise CustomerException(e,sys)
     
 
-def evaluate_models(x_train,y_train,x_test,y_test,models_dict):
+def evaluate_models(x_train,y_train,x_test,y_test,models_dict,param):
     try:
         report = {}
         models_used = []
@@ -31,8 +32,13 @@ def evaluate_models(x_train,y_train,x_test,y_test,models_dict):
 
         for i in range(len(models_dict)):
             model = list(models_dict.values())[i]
+            para=param[list(models_dict.keys())[i]]
 
-            model.fit(x_train,y_train)
+            gs = GridSearchCV(model,para,cv=3)
+            gs.fit(x_train,y_train)
+
+            model.set_params(**gs.best_params_)
+            model.fit(x_train,y_train)            
 
             y_train_pred = model.predict(x_train)
 

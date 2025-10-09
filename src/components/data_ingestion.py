@@ -57,10 +57,11 @@ if debug:
 
         data_trf_obj = DataTransformation()
         x_train,y_train,x_test,y_test = data_trf_obj.start_data_transformation(train_data,test_data)
-        print(x_train.columns,y_train.name)
+        # print(x_train.columns,y_train.name)
 
         model_trainer_obj = ModelTrainer()
-        model_trainer_obj.start_model_trainer(x_train,y_train,x_test,y_test)
+        score = model_trainer_obj.start_model_trainer(x_train,y_train,x_test,y_test)
+        print(score)
 
 
 
