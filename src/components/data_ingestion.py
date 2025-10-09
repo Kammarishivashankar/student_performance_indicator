@@ -1,6 +1,6 @@
 import os
 import sys
-from src.exception import CustomerException
+from src.exception import CustomException
 from src.logger import logging
 
 import pandas as pd
@@ -26,6 +26,7 @@ class DataIngestion:
         logging.info('DataIngestion.start_data_ingestion started...!')
         try:
             df = pd.read_csv(os.path.join('EDA','StudentsPerformance.csv'))
+            df.columns = [col.replace(" ",'_').replace('/',"_") for col in df.columns]
             logging.info('Read the dataset in DataIngestion.start_data_ingestion..')
 
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
@@ -48,7 +49,7 @@ class DataIngestion:
             )
 
         except Exception as e:
-            raise CustomerException(e,sys)
+            raise CustomException(e,sys)
         
 if debug:
     if __name__ == "__main__":
@@ -56,12 +57,12 @@ if debug:
         train_data,test_data  = obj.start_data_ingestion()
 
         data_trf_obj = DataTransformation()
-        x_train,y_train,x_test,y_test = data_trf_obj.start_data_transformation(train_data,test_data)
-        # print(x_train.columns,y_train.name)
-
-        model_trainer_obj = ModelTrainer()
-        score = model_trainer_obj.start_model_trainer(x_train,y_train,x_test,y_test)
-        print(score)
+        x_train,y_train,x_test,y_test = data_trf_obj.start_data_transformation(train_data,test_data)    
+        print(x_train.head())
+        
+        # model_trainer_obj = ModelTrainer()
+        # score = model_trainer_obj.start_model_trainer(x_train,y_train,x_test,y_test)
+        # print(score)
 
 
 

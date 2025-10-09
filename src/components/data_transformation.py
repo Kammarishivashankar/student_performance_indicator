@@ -10,13 +10,15 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-from src.exception import CustomerException
+from src.exception import CustomException
 from src.logger import logging
 from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
     preprocessor_obj_file_path: str = os.path.join('models',"preprocessor.pkl")
+    processed_train_data :str = os.path.join("Data",'Processed_train_data')
+    processed_test_data :str = os.path.join("Data",'Processed_test_data')
 
 
 class DataTransformation:
@@ -25,12 +27,12 @@ class DataTransformation:
 
     def get_data_transformer(self):
         try:
-            numerical_columns = ['writing score',"reading score"]
+            numerical_columns = ['writing_score',"reading_score"]
             categorical_columns = ['gender',
-                                'race/ethnicity',
-                                'parental level of education',
+                                'race_ethnicity',
+                                'parental_level_of_education',
                                 'lunch',
-                                'test preparation course']
+                                'test_preparation_course']
             
             numerical_pipeline = Pipeline(
                 steps = [
@@ -61,7 +63,7 @@ class DataTransformation:
         
         except Exception as e:
             logging.info('Data transformation failed!....')
-            raise CustomerException(e,sys)
+            raise CustomException(e,sys)
         
     def start_data_transformation(self,train_path,test_path):
         try:
@@ -73,7 +75,7 @@ class DataTransformation:
             prepprocessor_obj = self.get_data_transformer()
             prepprocessor_obj.set_output(transform='pandas')
 
-            target = "math score"
+            target = "math_score"
 
         
             input_train_data = train_df.drop(columns=[target])
@@ -87,7 +89,8 @@ class DataTransformation:
             input_train_data_transfomed = prepprocessor_obj.fit_transform(input_train_data)
             input_test_data_transformed = prepprocessor_obj.transform(input_test_data)
 
-            
+            input_train_data_transfomed.to_csv(self.data_transformation_config.processed_train_data,index=False,header=True)
+            input_test_data_transformed.to_csv(self.data_transformation_config.processed_test_data,index=False,header=True)
 
             save_object(
                 self.data_transformation_config.preprocessor_obj_file_path,
@@ -103,4 +106,4 @@ class DataTransformation:
             )
         except Exception as e:
             logging.info('start_data_transformation failed!....')
-            raise CustomerException(e,sys)
+            raise CustomException(e,sys)
